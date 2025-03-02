@@ -20,6 +20,7 @@ class Tagger(nn.Module):
 			num_labels: Number of class labels. 
 		"""
 		super().__init__()
+		self.config = config
 		hidden_dropout_prob = 0.2
 		self.dropout = nn.Dropout(hidden_dropout_prob)
 		
@@ -27,13 +28,22 @@ class Tagger(nn.Module):
 		## TODO: Make this a big FCN, or have a decoder module
 		## which can perform sequetial decoding. 
 		hidden_size_tagger = 128
-		encoder_output_size = config['encoder_output_dim']
-		self.num_tags = config['n_tags']
-		self.seq_encoder =  Seq2SeqEncoder.by_name('stacked_bidirectional_lstm')(input_size=encoder_output_size, hidden_size=hidden_size_tagger,
-			num_layers=1, recurrent_dropout_probability=0.2, use_highway=True)
-		self.classifier = nn.Linear(2 * hidden_size_tagger, self.num_tags)
+		encoder_output_size = self.config['encoder_output_dim']
+		self.num_tags = self.config['n_tags']
+
+		if self.config['use_tagger_lstm']:
+			self.seq_encoder =  Seq2SeqEncoder.by_name('stacked_bidirectional_lstm')(input_size=encoder_output_size,
+																			hidden_size=hidden_size_tagger,
+																			num_layers=1,
+																			recurrent_dropout_probability=0.2,
+																			use_highway=True)
+			classifier_input_size = 2 * hidden_size_tagger
+		else:
+			classifier_input_size = encoder_output_size
+		
+		self.classifier = nn.Linear(classifier_input_size, self.num_tags)
 		self.tagger_loss = nn.CrossEntropyLoss(ignore_index=0)
-		self.gumbel_softmax = config['gumbel_softmax']
+		self.gumbel_softmax = self.config['gumbel_softmax']
 		self.apply(self._init_weights)
 		self.mode = 'train'
 
@@ -60,9 +70,9 @@ class Tagger(nn.Module):
 				encoder_reps: Encoder representations. batchsize x seq_len x hidden_size
 				labels: batchsize x seq_len
 		"""
-
-		self.tag_representations = self.seq_encoder(self.dropout(encoder_reps), mask)
-		logits = self.classifier(self.tag_representations)
+		encoder_reps = self.dropout(encoder_reps)
+		encoder_reps = self.seq_encoder(encoder_reps, mask)
+		logits = self.classifier(encoder_reps)
 		
 		## calculate loss if training
 		## this must be made better in future

@@ -67,20 +67,22 @@ class BiaffineDependencyParser(Model):
         If provided, will be used to calculate the regularization penalty during training.
     """
     def __init__(self,
-                 encoder: Seq2SeqEncoder,
-                 embedding_dim: int,
-                 n_edge_labels: int,
-                 tag_embedder: Embedding, 
-                 tag_representation_dim: int,
-                 arc_representation_dim: int,
-                 tag_feedforward: FeedForward = None,
-                 arc_feedforward: FeedForward = None,
-                 use_mst_decoding_for_validation: bool = True,
-                 dropout: float = 0.0,
-                 input_dropout: float = 0.0,
-                 initializer: InitializerApplicator = InitializerApplicator(),
-                 regularizer: Optional[RegularizerApplicator] = None) -> None:
+                config: Dict,
+                encoder: Seq2SeqEncoder,
+                embedding_dim: int,
+                n_edge_labels: int,
+                tag_embedder: Embedding, 
+                tag_representation_dim: int,
+                arc_representation_dim: int,
+                tag_feedforward: FeedForward = None,
+                arc_feedforward: FeedForward = None,
+                use_mst_decoding_for_validation: bool = True,
+                dropout: float = 0.0,
+                input_dropout: float = 0.0,
+                initializer: InitializerApplicator = InitializerApplicator(),
+                regularizer: Optional[RegularizerApplicator] = None) -> None:
         super(BiaffineDependencyParser, self).__init__(None, regularizer)
+        self.config = config
 
         self.encoder = encoder
 
@@ -143,13 +145,16 @@ class BiaffineDependencyParser(Model):
 
     @classmethod
     def get_model(cls, config):
-        embedding_dim = config['encoder_output_dim'] + config['tag_embedding_dimension']
+        if config['use_tag_embeddings_in_parser']:
+            embedding_dim = config['encoder_output_dim'] + config['tag_embedding_dimension']
+        else:
+            embedding_dim = config['encoder_output_dim']
         n_edge_labels = config['n_edge_labels']
         encoder =  Seq2SeqEncoder.by_name('stacked_bidirectional_lstm')(input_size=embedding_dim, hidden_size=400,
             num_layers=3, recurrent_dropout_probability=0.3, use_highway=True)
 
         tag_embedder = FeedForward(config['n_tags'], 1, [config['tag_embedding_dimension']], torch.nn.ReLU(), 0.2)
-        model_obj = cls(encoder=encoder, embedding_dim=embedding_dim, n_edge_labels=n_edge_labels, tag_embedder= tag_embedder, arc_representation_dim=500, tag_representation_dim=100, dropout=0.3, input_dropout=0.3)
+        model_obj = cls(config=config, encoder=encoder, embedding_dim=embedding_dim, n_edge_labels=n_edge_labels, tag_embedder= tag_embedder, arc_representation_dim=500, tag_representation_dim=100, dropout=0.3, input_dropout=0.3)
         model_obj.softmax_multiplier = config['softmax_scaling_coeff']
         return model_obj
 
@@ -220,11 +225,14 @@ class BiaffineDependencyParser(Model):
         """
 
         # encoded_text_input, mask, head_tags, head_indices = self.remove_extra_padding(encoded_text_input, mask, head_tags, head_indices)
+        if self.config['use_tag_embeddings_in_parser']:
+            tag_embeddings = self.tag_embedder(pos_tags)
+            encoded_text_input = torch.cat([encoded_text_input, tag_embeddings], -1)
         
-        tag_embeddings = self.tag_embedder(pos_tags)
-        encoded_text_input = torch.cat([encoded_text_input, tag_embeddings], -1)
-        
-        encoded_text = self.encoder(encoded_text_input, mask)
+        if self.config['use_parser_lstm']:
+            encoded_text = self.encoder(encoded_text_input, mask)
+        else:
+            encoded_text = encoded_text_input
         
         encoded_text = self._input_dropout(encoded_text)
         batch_size, _, encoding_dim = encoded_text.size()

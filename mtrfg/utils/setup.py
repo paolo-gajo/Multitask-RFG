@@ -12,7 +12,7 @@ import random
 import warnings
 
 
-def setup_config(config : Dict, args: Dict, mode = 'train') -> Dict:
+def setup_config(config : Dict, args: Dict = {}, custom_config: Dict = {}, mode = 'train') -> Dict:
     """
         modify config params here before storing them
     """
@@ -27,6 +27,9 @@ def setup_config(config : Dict, args: Dict, mode = 'train') -> Dict:
             warnings.warn(f'{key} is passed as an input but not a valid key in current config. So it is ignored while overriding config.')
         else:
             config[key] = args[key]
+
+    for key in custom_config:
+        config[key] = custom_config[key]
 
 
     ## when we are doing validation or test, we just need to change variables

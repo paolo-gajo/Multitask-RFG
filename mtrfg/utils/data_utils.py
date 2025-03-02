@@ -20,7 +20,6 @@ import string
 import networkx as nx
 from conllu.models import TokenList
 from conllu import parse
-from conllu.models import TokenList
 import random
 
 def read_conllu(file: str) -> List[TokenList]:
@@ -346,7 +345,7 @@ class NERdataset(Dataset):
 		item['words'] = recipe_tokenized
 		encoded_input.update({'words_mask_custom' : torch.as_tensor(word_mask).long().to(torch.device(self.device))})
 		item['encoded_input'] = encoded_input
-		item['pos_tag_labels'] = torch.as_tensor(pos_tag_labels).to(torch.device(self.device))
+		item['pos_tags'] = torch.as_tensor(pos_tag_labels).to(torch.device(self.device))
 		item['head_tags'] = torch.as_tensor(head_tags).to(torch.device(self.device))
 		item['head_indices'] = torch.as_tensor(head_indices).to(torch.device(self.device))
 		

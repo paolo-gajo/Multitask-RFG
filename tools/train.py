@@ -18,13 +18,13 @@ from mtrfg.utils import (save_json,
                         run_evaluation,
                         load_json,
                         validate_epoch,
-                        get_label_index_mapping, 
+                        get_label_index_mapping,
                         save_python_command,
                         save_reproduce_training_cmd
                         )
 
 from mtrfg.model import MTRfg
-from mtrfg.config import default_cfg
+from mtrfg.config import default_cfg, custom_config
 from mtrfg.evaluation import evaluate_model, evaluate_model_with_all_labels
 from tqdm import tqdm
 import numpy as np
@@ -32,10 +32,13 @@ from pprint import pprint
 import sys
 
 ## get the arguments to modify the config
-args = get_args()  
+args = get_args()
 
 ## modify config based on environment
-config = setup_config(default_cfg, args)
+config = setup_config(default_cfg,
+                      args = args,
+                      custom_config = custom_config
+                      )
 
 ## if label index map is provided, we must use that to override number of labels
 label_index_map = load_json(args['labels_json_path']) if 'labels_json_path' in args else get_label_index_mapping(config['train_file'])
@@ -50,11 +53,11 @@ save_json(config, os.path.join(config['save_dir'], 'config.json'))
 set_seeds(config['seed'])
 
 ## build a dataloader
-train_loader = build_dataloader(config, loader_type = 'train', collate_function=ner_collate_fuction, label_index_map=label_index_map)
+train_loader = build_dataloader(config, loader_type = 'train')
 save_json(train_loader.dataset.label_index_map, os.path.join(config['save_dir'], 'labels.json'))
 
 ## build a validation dataloader
-val_loader = build_dataloader(config, loader_type = 'val', collate_function=ner_collate_fuction,label_index_map=label_index_map)
+val_loader = build_dataloader(config, loader_type = 'val')
 
 ## build a model
 model_start_path = args['model_start_path'] if 'model_start_path' in args else None ## this is an extra argument introduced that'd perform model initialization for finetuning!
@@ -92,6 +95,7 @@ with tqdm(range(config['epochs'])) as pbar:
         eval_function = evaluate_model
         eval_function_name = eval_function.__name__
         val_results, _ = run_evaluation(model, val_loader, eval_function = eval_function, config = config, label_index_map = label_index_map)
+        print(val_results)
         parser_prec = val_results['parser_labeled_results']['P']
         tagger_prec = val_results['tagger_results']['P']
         save_json(val_results, os.path.join(config['save_dir'], f'val_results_with_{eval_function_name}_epoch_{epoch}.json'))
@@ -126,7 +130,7 @@ pprint(val_results)
 
 ## let's run the trained model on test dataset
 ## let's run and get results on test dataset too
-test_loader = build_dataloader(config, loader_type = 'test', collate_function=ner_collate_fuction, label_index_map=label_index_map)
+test_loader = build_dataloader(config, loader_type = 'test')
 test_results, benchmark_metrics = run_evaluation(model, test_loader, eval_function = evaluate_model, config = config, label_index_map = label_index_map)
 save_json(test_results, os.path.join(config['save_dir'], 'test_results.json'))
 save_json(benchmark_metrics, os.path.join(config['save_dir'], 'test_results_benchmark.json'))

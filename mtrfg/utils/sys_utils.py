@@ -8,7 +8,7 @@ import shutil
 from datetime import datetime
 from typing import Dict, Optional, Tuple, Any, List
 from copy import deepcopy
-
+import json
 
 def write_text(file_path: str, text_data: str):
     """
@@ -95,3 +95,8 @@ def remove(path):
 ## get current datetime for saving purposes
 def get_current_time_string():
     return datetime.now().strftime("%Y-%m-%d--%H:%M:%S")
+
+def load_json(json_path: str):
+    with open(json_path, 'r', encoding='utf8') as f:
+        data = json.load(f)
+    return data
