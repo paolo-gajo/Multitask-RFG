@@ -10,6 +10,7 @@ from tqdm.auto import tqdm
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 
 class GraphDataset(Dataset):
     def __init__(self,
@@ -45,7 +46,7 @@ class GraphDataset(Dataset):
         return cls(data, **kwargs)
     
 
-    def augment(self, k = 1, only_permuted = False, keep_og = False):
+    def augment(self, k = 1, keep_og = False):
         augmented_data = []
         for sample in tqdm(self.data, total=len(self.data), desc=f'Augmenting {self.split} dataset...'):
             sample_size = k
@@ -54,30 +55,55 @@ class GraphDataset(Dataset):
                 all_topos = np.array(list(all_topological_sorts(G)))
                 num_topos = all_topos.shape[0]
                 if num_topos > 1:
-                    if only_permuted:
-                        all_topos = all_topos[1:]  # the 0th element is the base order, so we exclude it
+                    all_topos = all_topos[1:]  # the 0th element is the base order, so we exclude it
                     if sample_size > len(all_topos):
                         sample_size = len(all_topos)
                     perms_mask = np.random.choice(len(all_topos), size = sample_size, replace=False)
                     perms = all_topos[perms_mask].tolist()
-                    for perm in perms:
+                    for i, perm in enumerate(perms):
                         perm_filled = torch.as_tensor(add_isolated_nodes(perm))
-                        augmented_data.append(self.permute_graph(sample, perm_filled))
-            elif keep_og:
-                augmented_data.append(sample)
+                        permuted_graph = self.permute_graph(sample, perm_filled)
+                        augmented_data.append(permuted_graph)
+                if keep_og:
+                    augmented_data.append(sample)
                     
         print(f'Augmented {self.split} dataset from {len(self.data)} to {len(augmented_data)} samples.')
+        # print(f"Augmented value counts: {dict(pd.DataFrame(augmented_data)['permuted'].value_counts())}")
         self.data = augmented_data
     
+    def shuffle(self):
+        random.shuffle(self.data)
+
+    def only_use_max_step_graph(self):
+        max = 0
+        max_step_sample = None
+        for sample in self.data:
+            if len(sample['step_graph']) > 0:
+                G = from_edgelist(sample['step_graph'], create_using=DiGraph)
+                all_topos = list(all_topological_sorts(G))
+                n_all_topos = len(all_topos)
+                if n_all_topos > max:
+                    max = n_all_topos
+                    max_step_sample = sample
+                    max_all_topos = all_topos
+        self.data = [max_step_sample]
+
+    
+    def populate_texts(self):
+        for sample in self.data:
+            sample['updated_text']
 
     def permute_graph(self, G, order_idx):
+        step_indices = G['step_indices']
+        step_indices_tokens = G['step_indices_tokens']
         G_perm = G.copy()
+        
         for key, value in G_perm.items():    
-            idx = G_perm['step_indices_tokens'] if 'tokens' in key else G_perm['step_indices']
+            idx = ('step_indices_tokens', step_indices_tokens) if ('tokens' in key or 'encoded_input' == key) else ('step_indices', step_indices)
             if is_tensorizable(value):
-                G_perm[key] = apply_sub_dicts(value, lambda x: reorder_tensor(x, idx=idx, permutation=order_idx))
+                G_perm[key] = apply_sub_dicts(value, lambda x: reorder_tensor(x, idx=idx[1], permutation=order_idx))
             elif key != 'step_graph':
-                G_perm[key] = reorder_list(value, idx=idx, permutation=order_idx)
+                G_perm[key] = reorder_list(value, idx=idx[1], permutation=order_idx)
         return G_perm
 
 
@@ -223,7 +249,6 @@ def reorder_tensor(t: torch.Tensor = None, idx = None, permutation = None):
     left = min(idx_tensor)
     right = max(idx_tensor)
     idx_reordered[left:right+1] = torch.as_tensor(idx_tensor)
-    idx_reordered.type(torch.long)
     t_reordered = t[idx_reordered]
     return t_reordered
 

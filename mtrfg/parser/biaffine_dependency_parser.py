@@ -84,12 +84,16 @@ class BiaffineDependencyParser(Model):
         super(BiaffineDependencyParser, self).__init__(None, regularizer)
         self.config = config
 
-        self.encoder = encoder
 
-        self.tag_embedder = tag_embedder
-
-        encoder_dim = encoder.get_output_dim()
-
+        if self.config['use_parser_lstm']:
+            self.encoder = encoder
+            encoder_dim = encoder.get_output_dim()
+        else:
+            encoder_dim = embedding_dim
+        
+        if self.config['use_tag_embeddings_in_parser']:
+            self.tag_embedder = tag_embedder
+        
         self.head_arc_feedforward = arc_feedforward or \
                                         FeedForward(encoder_dim, 1,
                                                     arc_representation_dim,
@@ -114,7 +118,7 @@ class BiaffineDependencyParser(Model):
 
         self._dropout = InputVariationalDropout(dropout)
         self._input_dropout = Dropout(input_dropout)
-        self._head_sentinel = torch.nn.Parameter(torch.randn([1, 1, encoder.get_output_dim()]))
+        self._head_sentinel = torch.nn.Parameter(torch.randn([1, 1, encoder_dim]))
 
         representation_dim = embedding_dim
 
@@ -249,19 +253,19 @@ class BiaffineDependencyParser(Model):
         self.encoded_text = self._dropout(self.encoded_text)
 
         # shape (batch_size, sequence_length, arc_representation_dim)
-        head_arc_representation = self._dropout(self.head_arc_feedforward(self.encoded_text ))
-        child_arc_representation = self._dropout(self.child_arc_feedforward(self.encoded_text ))
+        head_arc_representation = self._dropout(self.head_arc_feedforward(self.encoded_text))
+        child_arc_representation = self._dropout(self.child_arc_feedforward(self.encoded_text))
 
         # shape (batch_size, sequence_length, tag_representation_dim)
-        head_tag_representation = self._dropout(self.head_tag_feedforward(self.encoded_text ))
-        child_tag_representation = self._dropout(self.child_tag_feedforward(self.encoded_text ))
+        head_tag_representation = self._dropout(self.head_tag_feedforward(self.encoded_text))
+        child_tag_representation = self._dropout(self.child_tag_feedforward(self.encoded_text))
         # shape (batch_size, sequence_length, sequence_length)
         attended_arcs = self.arc_attention(head_arc_representation,
                                            child_arc_representation)
 
+        # mask scores before decoding
         minus_inf = -1e8
         minus_mask = (1 - float_mask) * minus_inf
-
         attended_arcs = attended_arcs + minus_mask.unsqueeze(2) + minus_mask.unsqueeze(1)
 
         if self.training or not self.use_mst_decoding_for_validation:
@@ -532,12 +536,6 @@ class BiaffineDependencyParser(Model):
         """
         pairwise_head_logits = self.softmax_multiplier * (pairwise_head_logits - torch.max(pairwise_head_logits, dim=3)[0].unsqueeze(dim=3))
         normalized_pairwise_head_logits = F.log_softmax(pairwise_head_logits, dim=3).permute(0, 3, 1, 2)
-
-        # Mask padded tokens, because we only want to consider actual words as heads.
-        minus_inf = -1e8
-        minus_mask = (1 - mask.float()) * minus_inf
-        
-        attended_arcs = attended_arcs + minus_mask.unsqueeze(2) + minus_mask.unsqueeze(1)
 
         # Shape (batch_size, sequence_length, sequence_length)
         attended_arcs = self.softmax_multiplier * (attended_arcs - torch.max(attended_arcs, dim = 2)[0].unsqueeze(dim=2))

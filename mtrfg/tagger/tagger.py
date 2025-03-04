@@ -71,7 +71,8 @@ class Tagger(nn.Module):
 				labels: batchsize x seq_len
 		"""
 		encoder_reps = self.dropout(encoder_reps)
-		encoder_reps = self.seq_encoder(encoder_reps, mask)
+		if self.config['use_tagger_lstm']:
+			encoder_reps = self.seq_encoder(encoder_reps, mask)
 		logits = self.classifier(encoder_reps)
 		
 		## calculate loss if training
