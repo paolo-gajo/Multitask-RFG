@@ -30,6 +30,7 @@ from tqdm import tqdm
 import numpy as np
 from pprint import pprint
 import sys
+import json
 
 ## get the arguments to modify the config
 args = get_args()
@@ -40,6 +41,7 @@ config = setup_config(default_cfg,
                       custom_config = custom_config
                       )
 
+print('Current custom config:\n\n', json.dumps(custom_config, indent = 4))
 ## if label index map is provided, we must use that to override number of labels
 label_index_map = load_json(args['labels_json_path']) if 'labels_json_path' in args else get_label_index_mapping(config['train_file'])
 config['n_tags'] = len(label_index_map['tag2class']) 
@@ -54,6 +56,8 @@ set_seeds(config['seed'])
 
 ## build a dataloader
 train_loader = build_dataloader(config, loader_type = 'train')
+# config['n_tags'] = len(train_loader.dataset.label_index_map['tag2class']) 
+# config['n_edge_labels'] = len(train_loader.dataset.label_index_map['edgelabel2class'])
 save_json(train_loader.dataset.label_index_map, os.path.join(config['save_dir'], 'labels.json'))
 
 ## build a validation dataloader
@@ -109,7 +113,8 @@ with tqdm(range(config['epochs'])) as pbar:
         ## early stopping if best model is already found!
         if latest_save < config['patience'] and config['early_stopping']:
             if labeled_prec > curr_best_val_value:
-                torch.save(model.state_dict(), config['model_path'])    
+                if config['save_model']:
+                    torch.save(model.state_dict(), config['model_path'])    
                 curr_best_val_value = round(labeled_prec, 3)
                 
                 latest_save = 0

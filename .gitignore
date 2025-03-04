@@ -17,3 +17,4 @@ data/Recipe1M/layer1.json
 data/Recipe1M/layer2.json
 data/Recipe1M/train.txt
 data/
+.env/

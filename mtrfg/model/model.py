@@ -1,18 +1,24 @@
 import torch
-from mtrfg.encoder import Encoder
+from transformers import AutoTokenizer
+from mtrfg.encoder import Encoder, BERTWordEmbeddings
 from mtrfg.parser import BiaffineDependencyParser
 from mtrfg.tagger import Tagger
 import numpy as np
 import warnings
 from typing import Set, Tuple
+from mtrfg.utils.graph_data_utils import reorder_tensor
 
 class MTRfg(torch.nn.Module):
     def __init__(self, config): 
         super(MTRfg, self).__init__()
         self.config = config
         self.encoder = Encoder(config)
-        self.tagger = Tagger(config)
-        self.parser = BiaffineDependencyParser.get_model(config)
+        self.config['encoder_output_dim'] = self.encoder.encoder.embeddings.word_embeddings.weight.shape[-1]
+        # self.encoder = BERTWordEmbeddings(self.config['model_name'])
+        # self.config['encoder_output_dim'] = self.encoder.word_embeddings.weight.shape[-1]
+        self.tagger = Tagger(self.config)
+        self.parser = BiaffineDependencyParser.get_model(self.config)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.config['model_name'])
         self.mode = 'train'
 
     def freeze_tagger(self):
@@ -25,7 +31,7 @@ class MTRfg(torch.nn.Module):
         for param in self.parser.parameters():
             param.requires_grad = False
 
-    def get_output_as_list_of_dicts(self, tagger_ouptut, parser_output, model_input):
+    def get_output_as_list_of_dicts_words(self, tagger_ouptut, parser_output, model_input):
         """
             Returns list of dictionaries, each element in the dictionary is 
             1 item in the batch, list has same length as batchsize. The dictionary
@@ -61,6 +67,43 @@ class MTRfg(torch.nn.Module):
             outputs.append(elem_dict)
 
         return outputs
+    
+    def get_output_as_list_of_dicts_tokens(self, tagger_ouptut, parser_output, model_input):
+        """
+            Returns list of dictionaries, each element in the dictionary is 
+            1 item in the batch, list has same length as batchsize. The dictionary
+            will contain 7 fields, 'words', 'head_tags_gt', 'head_tags_pred', 'pos_tags_gt',
+            'pos_tags_pred', 'head_indices_gt', 'head_indices_pred'. During evalution, all fields
+            should have exactly identical length, during testing, '*_gt' keys() will have empty 
+            tensors.
+        """
+        outputs = []
+        batch_size = len(tagger_ouptut)
+
+        for i in range(batch_size):
+            elem_dict = {}
+            
+            ## find non-masked indices
+            valid_input_indices = torch.where(model_input['encoded_input']['attention_mask'][i] == 1)[0].cpu().detach().numpy().tolist()
+
+            input_length = len(valid_input_indices)
+
+            elem_dict['input_ids'] = np.array(model_input['encoded_input']['input_ids'][i])[valid_input_indices].tolist()
+            
+            elem_dict['head_tags_gt'] = model_input['head_tags_tokens'][i].cpu().detach().numpy()[valid_input_indices].tolist()
+            elem_dict['head_tags_pred'] = parser_output['predicted_dependencies'][i]
+
+            elem_dict['head_indices_gt'] = model_input['head_indices_tokens'][i].cpu().detach().numpy()[valid_input_indices].tolist()
+            elem_dict['head_indices_pred'] = parser_output['predicted_heads'][i]
+            
+            elem_dict['pos_tags_gt'] = model_input['pos_tags_tokens'][i].cpu().detach().numpy()[valid_input_indices].tolist()
+            elem_dict['pos_tags_pred'] = tagger_ouptut[i]
+            
+            assert np.all([len(elem_dict[key]) == input_length for key in elem_dict]), "Predictions are not same length as input!"
+            ## append
+            outputs.append(elem_dict)
+
+        return outputs
 
     def set_mode(self, mode = 'train'):
         """
@@ -88,6 +131,11 @@ class MTRfg(torch.nn.Module):
         # we control whether we are going to use word-wise or token-wise representations.
         encoder_output = self.encoder(encoder_input) ## We get new attention mask because we have merged representations.
 
+        # # check permutation equivariance
+        # print(self.tokenizer.batch_decode(encoder_input['input_ids']))
+        # t1 = reorder_tensor(encoder_output[0], model_input['step_indices_tokens'][0], permutation=torch.arange(1, torch.max(model_input['step_indices_tokens'][0])))
+        # t2 = reorder_tensor(encoder_output[1], model_input['step_indices_tokens'][1], permutation=torch.arange(1, torch.max(model_input['step_indices_tokens'][1])))
+        # print(torch.allclose(t1, t2, rtol=0.0001, atol=0.0001))
         
         if self.config['rep_mode'] == 'words':
             tagger_labels = model_input['pos_tags']
@@ -130,8 +178,11 @@ class MTRfg(torch.nn.Module):
             return loss
         elif self.mode == 'test':
             tagger_human_readable = self.tagger.make_output_human_readable(tagger_output, downstream_mask)
-            parser_human_readable = self.parser.make_output_human_readable(parser_output)            
-            output_as_list_of_dicts = self.get_output_as_list_of_dicts(tagger_human_readable, parser_human_readable, model_input)
+            parser_human_readable = self.parser.make_output_human_readable(parser_output)
+            if self.config['rep_mode'] == 'words':
+                output_as_list_of_dicts = self.get_output_as_list_of_dicts_words(tagger_human_readable, parser_human_readable, model_input)
+            elif self.config['rep_mode'] == 'tokens':
+                output_as_list_of_dicts = self.get_output_as_list_of_dicts_tokens(tagger_human_readable, parser_human_readable, model_input)
             return output_as_list_of_dicts
             ## when not training
             ## get human readable outputs

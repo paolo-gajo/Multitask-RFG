@@ -6,7 +6,7 @@
 
 import torch 
 import torch.nn as nn
-from transformers import AutoModel
+from transformers import AutoModel, BertModel, BertConfig
 from mtrfg.encoder.bert_nopos import BertModelNoPos
 from transformers import BatchEncoding
 from typing import List, Dict, Optional
@@ -19,7 +19,7 @@ class Encoder(nn.Module):
 
         self.config = config
         if self.config['use_bert_positional_embeddings']:
-            self.encoder = AutoModel.from_pretrained(self.config['model_name'])
+            self.encoder = BertModel.from_pretrained(self.config['model_name'])
         else:
             self.encoder = BertModelNoPos.from_pretrained(self.config['model_name'])
         self.encoder_input_keys = [key for key in inspect.signature(self.encoder.forward).parameters.keys()]
@@ -33,7 +33,6 @@ class Encoder(nn.Module):
 
         input_to_encoder = {key : encoded_input[key] if key in encoded_input else None for key in self.encoder_input_keys}
         input_to_encoder = {key : value for key, value in input_to_encoder.items() if not key.endswith('_custom')}
-
         outputs = self.encoder(**input_to_encoder)
         
         if self.config['rep_mode'] == 'words':
@@ -91,3 +90,66 @@ class Encoder(nn.Module):
                 outputs_new[i][word_idx] = word_representation
         
         return outputs_new
+
+class BERTWordEmbeddings(nn.Module):
+    def __init__(self, model_name: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        bert_embeddings = AutoModel.from_pretrained(model_name).embeddings
+        self.word_embeddings = bert_embeddings.word_embeddings
+        self.token_type_embeddings = bert_embeddings.token_type_embeddings
+        pass
+    
+    def forward(self, input: Dict[str, torch.Tensor]):
+        E = self.word_embeddings(input['input_ids'])
+        T = self.token_type_embeddings(input['token_type_ids'])
+        output = E + T
+        # output = self.merge_subword_representation(output, input)
+        return output
+    
+    def merge_subword_representation(self, outputs, encoded_input):
+        """
+        (taken from MTRFG)
+        Merges subword representations
+        Parameters:
+        ----------
+        outputs: Of type torch.Tensor
+        encoded_input: Of type BatchEncoding
+        """
+
+        ## keep it same dimensional as original output to keep 
+        ## it batch friendly!
+
+        outputs_new = outputs.clone()
+        # sizes = []
+        for i, t in enumerate(outputs):
+            word_indices = encoded_input['word_ids_custom'][i]
+
+            tot_words = torch.max(word_indices).item() + 1
+            # sizes.append(tot_words)
+            
+            for word_idx in range(tot_words):
+                """
+                    merging subword representations
+                """
+
+                # here they just overwrite and leave the remaining tokens as they are
+                # because in the tagger they are going to mask the tensors
+                # that have index > tot_words by applying `words_mask_custom`
+                outputs_new[i][word_idx] = t[torch.where(word_indices == word_idx)[0]].mean(dim = 0)
+                # outputs_new[i][word_idx] = t[torch.where(word_indices == word_idx)[0]][0]
+        # print(sizes)
+        return outputs_new
+
+    def freeze_encoder(self):
+        """
+            freeze model parameters
+        """
+        for param in self.parameters():
+            param.requires_grad = False
+
+    def unfreeze_encoder(self):
+        """
+            unfreeze model parameters
+        """
+        for param in self.parameters():
+            param.requires_grad = True

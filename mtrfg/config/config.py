@@ -5,13 +5,25 @@ custom_config = {
     
     'test_ignore_edge_dep': ['root', '-'], ## this will be ignored during evaluation
 
-    'augment_splits': [],#['train'],
-    'rep_mode': 'words', # either 'words' or 'tokens'
-    'use_bert_positional_embeddings': True,
-    'use_tagger_lstm': True, # `True` is the default MTRFG setting
-    'use_tag_embeddings_in_parser': True,
-    'use_parser_lstm': True,
-    'use_step_mask': False,
+    'shuffle': {'train': 0, 'val': 0, 'test': 0},
+
+    'only_use_biggest_graph': 0,
+    'augment_splits': {'train': 0, 'val': 0, 'test': 0},  # 1s or 0s
+    'augment_k': {'train': 200, 'val': 1, 'test': 1,},
+    'keep_og': 1,
+    'rep_mode': 'words', # either 'words' or 'tokens'. right now 'tokens' doesn't work in the evaluation because the correct labels need to be used o.w. the lenghts don't match.
+    'use_bert_positional_embeddings': 1,
+    'use_tagger_lstm': 1, # `True` is the default MTRFG setting
+    'use_tag_embeddings_in_parser': 1,  # `True` is the default MTRFG setting
+    'parser_lstm_hidden_size': 400,
+    'use_parser_lstm': 1,  # `True` is the default MTRFG setting
+    'use_step_mask': 0,
+
+    # 'freeze_encoder': 0,
+    # 'learning_rate': 1e-4,
+    'batch_size': 8,
+
+    'save_model': False,
 }
 
 default_cfg = {
