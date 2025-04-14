@@ -1,0 +1,99 @@
+Current custom config:
+
+ {
+    "train_file_graphs": "data/train.json",
+    "val_file_graphs": "data/val.json",
+    "test_file_graphs": "data/test.json",
+    "test_ignore_edge_dep": [
+        "root",
+        "-"
+    ],
+    "shuffle": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+    },
+    "only_use_biggest_graph": 0,
+    "augment_splits": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+    },
+    "augment_k": {
+        "train": 1,
+        "val": 1,
+        "test": 1
+    },
+    "keep_og": 0,
+    "rep_mode": "words",
+    "use_bert_positional_embeddings": 1,
+    "use_tagger_lstm": 1,
+    "use_tag_embeddings_in_parser": 1,
+    "parser_lstm_hidden_size": 400,
+    "use_parser_lstm": 1,
+    "use_step_mask": 0,
+    "batch_size": 8,
+    "save_model": false
+}
+Total parameters: 128876381
+Trainable parameters: 19394141
+{'tagger_results': {'P': 0.6283, 'R': 0.5989, 'F1': 0.6132}, 'parser_labeled_results': {'P': 0.0334, 'R': 0.0145, 'F1': 0.0202}, 'parser_unlabeled_results': {'P': 0.0523, 'R': 0.0227, 'F1': 0.0317}, 'epoch': 0}
+Epoch: 0, current validation loss: 94.703 and Labeled precision: 0.0334
+{'tagger_results': {'P': 0.6779, 'R': 0.634, 'F1': 0.6552}, 'parser_labeled_results': {'P': 0.0612, 'R': 0.0555, 'F1': 0.0582}, 'parser_unlabeled_results': {'P': 0.087, 'R': 0.0788, 'F1': 0.0827}, 'epoch': 1}
+Epoch: 1, current validation loss: 89.634 and Labeled precision: 0.0612
+{'tagger_results': {'P': 0.6792, 'R': 0.6607, 'F1': 0.6698}, 'parser_labeled_results': {'P': 0.0852, 'R': 0.0851, 'F1': 0.0852}, 'parser_unlabeled_results': {'P': 0.1124, 'R': 0.1122, 'F1': 0.1123}, 'epoch': 2}
+Epoch: 2, current validation loss: 89.625 and Labeled precision: 0.0852
+{'tagger_results': {'P': 0.6921, 'R': 0.6795, 'F1': 0.6857}, 'parser_labeled_results': {'P': 0.1607, 'R': 0.1406, 'F1': 0.15}, 'parser_unlabeled_results': {'P': 0.2061, 'R': 0.1803, 'F1': 0.1923}, 'epoch': 3}
+Epoch: 3, current validation loss: 83.234 and Labeled precision: 0.1607
+{'tagger_results': {'P': 0.683, 'R': 0.6795, 'F1': 0.6812}, 'parser_labeled_results': {'P': 0.2292, 'R': 0.1967, 'F1': 0.2117}, 'parser_unlabeled_results': {'P': 0.2917, 'R': 0.2503, 'F1': 0.2694}, 'epoch': 4}
+Epoch: 4, current validation loss: 82.076 and Labeled precision: 0.2292
+{'tagger_results': {'P': 0.6827, 'R': 0.6776, 'F1': 0.6802}, 'parser_labeled_results': {'P': 0.3177, 'R': 0.273, 'F1': 0.2937}, 'parser_unlabeled_results': {'P': 0.4065, 'R': 0.3493, 'F1': 0.3757}, 'epoch': 5}
+Epoch: 5, current validation loss: 79.374 and Labeled precision: 0.3177
+{'tagger_results': {'P': 0.6964, 'R': 0.6879, 'F1': 0.6921}, 'parser_labeled_results': {'P': 0.3957, 'R': 0.3588, 'F1': 0.3763}, 'parser_unlabeled_results': {'P': 0.4861, 'R': 0.4407, 'F1': 0.4623}, 'epoch': 6}
+Epoch: 6, current validation loss: 76.723 and Labeled precision: 0.3957
+{'tagger_results': {'P': 0.662, 'R': 0.6856, 'F1': 0.6736}, 'parser_labeled_results': {'P': 0.3852, 'R': 0.3556, 'F1': 0.3698}, 'parser_unlabeled_results': {'P': 0.4802, 'R': 0.4433, 'F1': 0.461}, 'epoch': 7}
+Epoch: 7, current validation loss: 78.212 and Labeled precision: 0.3852
+{'tagger_results': {'P': 0.6855, 'R': 0.6926, 'F1': 0.689}, 'parser_labeled_results': {'P': 0.4807, 'R': 0.3997, 'F1': 0.4365}, 'parser_unlabeled_results': {'P': 0.5807, 'R': 0.483, 'F1': 0.5274}, 'epoch': 8}
+Epoch: 8, current validation loss: 77.091 and Labeled precision: 0.4807
+{'tagger_results': {'P': 0.6939, 'R': 0.6917, 'F1': 0.6928}, 'parser_labeled_results': {'P': 0.4771, 'R': 0.4653, 'F1': 0.4711}, 'parser_unlabeled_results': {'P': 0.5928, 'R': 0.5782, 'F1': 0.5854}, 'epoch': 9}
+Epoch: 9, current validation loss: 75.354 and Labeled precision: 0.4771
+{'tagger_results': {'P': 0.7004, 'R': 0.6945, 'F1': 0.6974}, 'parser_labeled_results': {'P': 0.5278, 'R': 0.4905, 'F1': 0.5085}, 'parser_unlabeled_results': {'P': 0.671, 'R': 0.6236, 'F1': 0.6464}, 'epoch': 10}
+Epoch: 10, current validation loss: 74.63 and Labeled precision: 0.5278
+{'tagger_results': {'P': 0.687, 'R': 0.6818, 'F1': 0.6844}, 'parser_labeled_results': {'P': 0.5033, 'R': 0.4748, 'F1': 0.4886}, 'parser_unlabeled_results': {'P': 0.617, 'R': 0.582, 'F1': 0.599}, 'epoch': 11}
+Epoch: 11, current validation loss: 80.888 and Labeled precision: 0.5033
+{'tagger_results': {'P': 0.6968, 'R': 0.6926, 'F1': 0.6947}, 'parser_labeled_results': {'P': 0.5207, 'R': 0.4918, 'F1': 0.5058}, 'parser_unlabeled_results': {'P': 0.6482, 'R': 0.6122, 'F1': 0.6297}, 'epoch': 12}
+Epoch: 12, current validation loss: 75.808 and Labeled precision: 0.5207
+{'tagger_results': {'P': 0.698, 'R': 0.6931, 'F1': 0.6955}, 'parser_labeled_results': {'P': 0.5372, 'R': 0.5195, 'F1': 0.5282}, 'parser_unlabeled_results': {'P': 0.6675, 'R': 0.6456, 'F1': 0.6564}, 'epoch': 13}
+Epoch: 13, current validation loss: 78.363 and Labeled precision: 0.5372
+{'tagger_results': {'P': 0.693, 'R': 0.6874, 'F1': 0.6902}, 'parser_labeled_results': {'P': 0.522, 'R': 0.5082, 'F1': 0.515}, 'parser_unlabeled_results': {'P': 0.6483, 'R': 0.6311, 'F1': 0.6396}, 'epoch': 14}
+Epoch: 14, current validation loss: 80.216 and Labeled precision: 0.522
+{'tagger_results': {'P': 0.6891, 'R': 0.7001, 'F1': 0.6946}, 'parser_labeled_results': {'P': 0.5615, 'R': 0.524, 'F1': 0.5421}, 'parser_unlabeled_results': {'P': 0.7041, 'R': 0.657, 'F1': 0.6797}, 'epoch': 15}
+Epoch: 15, current validation loss: 79.489 and Labeled precision: 0.5615
+{'tagger_results': {'P': 0.7134, 'R': 0.6893, 'F1': 0.7011}, 'parser_labeled_results': {'P': 0.551, 'R': 0.5145, 'F1': 0.5321}, 'parser_unlabeled_results': {'P': 0.7022, 'R': 0.6557, 'F1': 0.6782}, 'epoch': 16}
+Epoch: 16, current validation loss: 78.91 and Labeled precision: 0.551
+{'tagger_results': {'P': 0.698, 'R': 0.6954, 'F1': 0.6967}, 'parser_labeled_results': {'P': 0.5421, 'R': 0.5233, 'F1': 0.5326}, 'parser_unlabeled_results': {'P': 0.6682, 'R': 0.645, 'F1': 0.6564}, 'epoch': 17}
+Epoch: 17, current validation loss: 84.96 and Labeled precision: 0.5421
+{'tagger_results': {'P': 0.7006, 'R': 0.6996, 'F1': 0.7001}, 'parser_labeled_results': {'P': 0.5434, 'R': 0.5208, 'F1': 0.5319}, 'parser_unlabeled_results': {'P': 0.6888, 'R': 0.6602, 'F1': 0.6742}, 'epoch': 18}
+Epoch: 18, current validation loss: 88.451 and Labeled precision: 0.5434
+{'tagger_results': {'P': 0.6912, 'R': 0.6767, 'F1': 0.6839}, 'parser_labeled_results': {'P': 0.5518, 'R': 0.524, 'F1': 0.5375}, 'parser_unlabeled_results': {'P': 0.6985, 'R': 0.6633, 'F1': 0.6805}, 'epoch': 19}
+Epoch: 19, current validation loss: 89.009 and Labeled precision: 0.5518
+{'tagger_results': {'P': 0.7092, 'R': 0.6973, 'F1': 0.7032}, 'parser_labeled_results': {'P': 0.5346, 'R': 0.5208, 'F1': 0.5276}, 'parser_unlabeled_results': {'P': 0.6828, 'R': 0.6652, 'F1': 0.6739}, 'epoch': 20}
+Epoch: 20, current validation loss: 91.544 and Labeled precision: 0.5346
+{'tagger_results': {'P': 0.7016, 'R': 0.7029, 'F1': 0.7022}, 'parser_labeled_results': {'P': 0.5696, 'R': 0.5315, 'F1': 0.5499}, 'parser_unlabeled_results': {'P': 0.7054, 'R': 0.6583, 'F1': 0.681}, 'epoch': 21}
+Epoch: 21, current validation loss: 91.302 and Labeled precision: 0.5696
+{'tagger_results': {'P': 0.7037, 'R': 0.7001, 'F1': 0.7019}, 'parser_labeled_results': {'P': 0.5516, 'R': 0.5126, 'F1': 0.5314}, 'parser_unlabeled_results': {'P': 0.6879, 'R': 0.6393, 'F1': 0.6627}, 'epoch': 22}
+Epoch: 22, current validation loss: 97.616 and Labeled precision: 0.5516
+{'tagger_results': {'P': 0.7041, 'R': 0.6992, 'F1': 0.7016}, 'parser_labeled_results': {'P': 0.5686, 'R': 0.5511, 'F1': 0.5597}, 'parser_unlabeled_results': {'P': 0.7079, 'R': 0.686, 'F1': 0.6968}, 'epoch': 23}
+Epoch: 23, current validation loss: 92.047 and Labeled precision: 0.5686
+{'tagger_results': {'P': 0.7044, 'R': 0.6903, 'F1': 0.6973}, 'parser_labeled_results': {'P': 0.5569, 'R': 0.534, 'F1': 0.5452}, 'parser_unlabeled_results': {'P': 0.6989, 'R': 0.6702, 'F1': 0.6843}, 'epoch': 24}
+Epoch: 24, current validation loss: 93.742 and Labeled precision: 0.5569
+{'tagger_results': {'P': 0.7071, 'R': 0.6992, 'F1': 0.7031}, 'parser_labeled_results': {'P': 0.5771, 'R': 0.5593, 'F1': 0.568}, 'parser_unlabeled_results': {'P': 0.7274, 'R': 0.7049, 'F1': 0.716}, 'epoch': 25}
+Epoch: 25, current validation loss: 96.357 and Labeled precision: 0.5771
+{'tagger_results': {'P': 0.6996, 'R': 0.7006, 'F1': 0.7001}, 'parser_labeled_results': {'P': 0.5769, 'R': 0.558, 'F1': 0.5673}, 'parser_unlabeled_results': {'P': 0.7282, 'R': 0.7043, 'F1': 0.716}, 'epoch': 26}
+Epoch: 26, current validation loss: 93.438 and Labeled precision: 0.5769
+{'tagger_results': {'P': 0.7009, 'R': 0.6996, 'F1': 0.7003}, 'parser_labeled_results': {'P': 0.5831, 'R': 0.5731, 'F1': 0.5781}, 'parser_unlabeled_results': {'P': 0.7319, 'R': 0.7194, 'F1': 0.7256}, 'epoch': 27}
+Epoch: 27, current validation loss: 98.287 and Labeled precision: 0.5831
+{'tagger_results': {'P': 0.7118, 'R': 0.7001, 'F1': 0.7059}, 'parser_labeled_results': {'P': 0.5662, 'R': 0.5637, 'F1': 0.5649}, 'parser_unlabeled_results': {'P': 0.715, 'R': 0.7119, 'F1': 0.7134}, 'epoch': 28}
+Epoch: 28, current validation loss: 99.382 and Labeled precision: 0.5662
+{'tagger_results': {'P': 0.7038, 'R': 0.7048, 'F1': 0.7043}, 'parser_labeled_results': {'P': 0.5547, 'R': 0.5404, 'F1': 0.5474}, 'parser_unlabeled_results': {'P': 0.7133, 'R': 0.6948, 'F1': 0.7039}, 'epoch': 29}
+Epoch: 29, current validation loss: 100.619 and Labeled precision: 0.5547

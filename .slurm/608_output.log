@@ -1,0 +1,45 @@
+Current custom config:
+
+ {
+    "train_file_graphs": "data/train.json",
+    "val_file_graphs": "data/train.json",
+    "test_file_graphs": "data/test.json",
+    "test_ignore_edge_dep": [
+        "root",
+        "-"
+    ],
+    "shuffle": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+    },
+    "only_use_biggest_graph": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+    },
+    "biggest_graph_threshold": 0,
+    "augment_splits": {
+        "train": 1,
+        "val": 0,
+        "test": 0
+    },
+    "augment_k": {
+        "train": 1,
+        "val": 1,
+        "test": 1
+    },
+    "keep_og": 0,
+    "rep_mode": "words",
+    "use_bert_positional_embeddings": 1,
+    "use_tagger_lstm": 1,
+    "use_tag_embeddings_in_parser": 1,
+    "parser_lstm_hidden_size": 400,
+    "use_parser_lstm": 1,
+    "use_step_mask": 0,
+    "batch_size": 8,
+    "save_model": false
+}
+Augmented train dataset from 240 to 112 samples.
+Total parameters: 128876381
+Trainable parameters: 19394141

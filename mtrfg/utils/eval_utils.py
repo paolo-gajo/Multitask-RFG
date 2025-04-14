@@ -105,6 +105,7 @@ def get_model_summary_in_dict(model):
 
     ## number of learnable params
     total_model_params = sum(p.numel() for p in model.parameters())
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     encoder_params = sum(p.numel() for p in model.encoder.parameters())
     tagger_params = sum(p.numel() for p in model.tagger.parameters())
     parser_params = sum(p.numel() for p in model.parser.parameters())
@@ -112,6 +113,7 @@ def get_model_summary_in_dict(model):
     mem_dict = {
                 'memory in (MB)' : mem,
                 'total learnable params' : total_model_params,
+                'total trainable params' : trainable_params,
                 'total encoder params' : encoder_params,
                 'total tagger params' : tagger_params,
                 'total parser params' : parser_params
@@ -119,7 +121,7 @@ def get_model_summary_in_dict(model):
 
     return mem_dict
 
-def run_evaluation(model, data_loader, eval_function = None, config = None, label_index_map = None):
+def run_evaluation(model, data_loader, eval_function = None, config = None, label_index_map = None, epoch = None):
     
     assert eval_function is not None, "No evaluation function."
     assert config is not None, "No config file to run evaluation."
@@ -157,6 +159,8 @@ def run_evaluation(model, data_loader, eval_function = None, config = None, labe
     model_summary['labeled precision'] = round(results['parser_labeled_results']['P'], 3)
     model_summary['unlabeled precision'] = round(results['parser_unlabeled_results']['P'], 3)
     model_summary['model_name'] = config['model_name']
+    
+    results['epoch'] = epoch
 
     return results, model_summary
 
