@@ -71,6 +71,8 @@ Note that when you are performing finetuning, pass --labels_json_path argument w
 so that model is finetuned/continued being trained on the same labels it saw earlier! 
 """
 model = build_model(config, model_start_path = model_start_path) 
+total_params = sum(p.numel() for p in model.parameters())
+print(f"Total parameters: {total_params}")
 
 ## optimizer 
 optimizer = build_optimizer(config, model)
