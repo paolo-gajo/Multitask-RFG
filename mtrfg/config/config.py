@@ -15,10 +15,13 @@ custom_config = {
     'rep_mode': 'words', # either 'words' or 'tokens'. right now 'tokens' doesn't work in the evaluation because the correct labels need to be used o.w. the lenghts don't match.
     'use_bert_positional_embeddings': 1,
     'use_tag_embeddings_in_parser': 0,  # `True` is the default MTRFG setting
-    'use_tagger_lstm': 0, # `True` is the default MTRFG setting
+    'use_tagger_lstm': 1, # `True` is the default MTRFG setting
     'use_parser_lstm': 1,  # `True` is the default MTRFG setting
     'use_gnn': 0,
     'use_step_mask': 0,
+
+    'arc_norm': 1,
+    'seed': 0,
 
     'freeze_encoder': 1,
     'learning_rate': 1e-3,

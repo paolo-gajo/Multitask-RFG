@@ -45,7 +45,8 @@ def setup_config(config : Dict, args: Dict = {}, custom_config: Dict = {}, mode 
                             # f"aug_{aug_string}",
                             f'lstm_{lstm_string}',
                             # f"keep_{keep_og_string}_k_{k_string}",
-                            f"{model_name}_{get_current_time_string()}")
+                            f"arc_norm_{config['arc_norm']}",
+                            f"{model_name}_{get_current_time_string()}_seed_{config['seed']}")
 
     config['save_dir'] = dir_path
 

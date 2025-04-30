@@ -1,0 +1,141 @@
+Current config:
+
+ {
+    "device": "cuda",
+    "optimizer": "dense_sparse_adam",
+    "train_file": "data/Parser/train.conllu",
+    "val_file": "data/Parser/dev.conllu",
+    "test_file": "data/Parser/test.conllu",
+    "freeze_encoder": 1,
+    "freeze_tagger": 0,
+    "freeze_parser": 0,
+    "early_stopping": true,
+    "patience": 30,
+    "epochs": 100,
+    "learning_rate": 0.001,
+    "shuffle": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+    },
+    "save_dir": "./saved_models/freeze_enc_1/stepmask_0/gnn_0/bpos_1/tagemb_0/lstm_1/arc_norm_0/bert-base-uncased_2025-04-30--16:02:41_seed_0",
+    "model_name": "bert-base-uncased",
+    "batch_size": 8,
+    "encoder_output_dim": 768,
+    "sparse_embedding_tags": false,
+    "n_tags": null,
+    "n_edge_labels": null,
+    "freeze_until_epoch": 999,
+    "test_ignore_tag": [
+        "O",
+        "no_label"
+    ],
+    "test_ignore_edge_dep": [
+        "root",
+        "-"
+    ],
+    "tag_embedding_dimension": 100,
+    "seed": 0,
+    "self_attention_heads": 2,
+    "use_multihead_attention": false,
+    "fraction_dataset": 1,
+    "betas": [
+        0.9,
+        0.9
+    ],
+    "use_pred_tags": true,
+    "keep_edge_labels": true,
+    "softmax_scaling_coeff": 1000,
+    "gumbel_softmax": false,
+    "keep_tags": true,
+    "model_path": "./saved_models/freeze_enc_1/stepmask_0/gnn_0/bpos_1/tagemb_0/lstm_1/arc_norm_0/bert-base-uncased_2025-04-30--16:02:41_seed_0/model.pth",
+    "train_file_graphs": "data/train.json",
+    "val_file_graphs": "data/val.json",
+    "test_file_graphs": "data/test.json",
+    "only_use_biggest_graph": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+    },
+    "biggest_graph_threshold": 0,
+    "augment_splits": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+    },
+    "augment_k": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+    },
+    "keep_og": 0,
+    "rep_mode": "words",
+    "use_bert_positional_embeddings": 1,
+    "use_tag_embeddings_in_parser": 0,
+    "use_tagger_lstm": 1,
+    "use_parser_lstm": 1,
+    "use_gnn": 0,
+    "use_step_mask": 0,
+    "arc_norm": 0,
+    "save_model": 1,
+    "data_len": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+    },
+    "parser_lstm_hidden_size": 400
+}
+Current custom config:
+
+ {
+    "train_file_graphs": "data/train.json",
+    "val_file_graphs": "data/val.json",
+    "test_file_graphs": "data/test.json",
+    "test_ignore_edge_dep": [
+        "root",
+        "-"
+    ],
+    "shuffle": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+    },
+    "only_use_biggest_graph": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+    },
+    "biggest_graph_threshold": 0,
+    "augment_splits": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+    },
+    "augment_k": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+    },
+    "keep_og": 0,
+    "rep_mode": "words",
+    "use_bert_positional_embeddings": 1,
+    "use_tag_embeddings_in_parser": 0,
+    "use_tagger_lstm": 1,
+    "use_parser_lstm": 1,
+    "use_gnn": 0,
+    "use_step_mask": 0,
+    "arc_norm": 1,
+    "seed": 0,
+    "freeze_encoder": 1,
+    "learning_rate": 0.001,
+    "batch_size": 8,
+    "save_model": 1,
+    "data_len": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+    },
+    "parser_lstm_hidden_size": 400
+}
+Total parameters: 128394081
+Trainable parameters: 18911841

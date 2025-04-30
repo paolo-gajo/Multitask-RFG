@@ -20,6 +20,7 @@ from allennlp.nn.chu_liu_edmonds import decode_mst
 from allennlp.training.metrics import AttachmentScores
 from allennlp.common.params import Params
 from allennlp.modules.token_embedders.embedding import Embedding
+import math
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
@@ -262,6 +263,9 @@ class BiaffineDependencyParser(Model):
         # shape (batch_size, sequence_length, sequence_length)
         attended_arcs = self.arc_attention(head_arc_representation,
                                            child_arc_representation)
+        
+        if self.config['arc_norm']:
+            attended_arcs = attended_arcs / math.sqrt(head_arc_representation.shape[-1])
 
         # mask scores before decoding
         minus_inf = -1e8

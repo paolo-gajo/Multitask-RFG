@@ -8,4 +8,15 @@
 #SBATCH --output=./.slurm/%j_output.log
 #SBATCH --error=./.slurm/%j_error.log
 
-python $1
+arc_norm_opts=(0 1)
+seed_opts=(0 1 2 3 4)
+
+for seed in "${seed_opts[@]}"
+do
+    for arc_norm in "${arc_norm_opts[@]}"
+    do
+        python ./tools/train.py --opts \
+        --arc_norm $arc_norm \
+        --seed $seed
+    done
+done
